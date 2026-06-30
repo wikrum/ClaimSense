@@ -1,9 +1,13 @@
 import os
 from typing import Any, Dict, List, Optional
 
+from dotenv import load_dotenv
 from langchain_core.tools import tool
 from pymongo import MongoClient
 import voyageai
+
+
+load_dotenv()
 
 
 DB_NAME = "claimsense_db"

@@ -2,8 +2,12 @@ import os
 from datetime import datetime
 from typing import Any, Dict, List
 
+from dotenv import load_dotenv
 from langchain_core.tools import tool
 from pymongo import MongoClient
+
+
+load_dotenv()
 
 
 def _format_claim_row(claim: Dict[str, Any]) -> str:

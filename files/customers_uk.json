@@ -1,0 +1,661 @@
+[
+  {
+    "customer_id": "CUST1001",
+    "name": "Poppy Malik",
+    "email": "poppy.malik@email.co.uk",
+    "phone": "07768896789",
+    "date_of_birth": "1980-02-09",
+    "address": {
+      "line1": "187 Mill Lane",
+      "city": "Birmingham",
+      "postcode": "B1 9XY"
+    },
+    "occupation": "Architect",
+    "member_since": "2016-10-01",
+    "active_policies": [
+      "motor",
+      "home"
+    ],
+    "risk_score": 4.9,
+    "ncd_years": 6,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1002",
+    "name": "Jack Brown",
+    "email": "jack.brown@email.co.uk",
+    "phone": "07742851493",
+    "date_of_birth": "1986-09-22",
+    "address": {
+      "line1": "199 Oak Road",
+      "city": "Leicester",
+      "postcode": "LE1 8LN"
+    },
+    "occupation": "Software Engineer",
+    "member_since": "2019-09-01",
+    "active_policies": [
+      "health"
+    ],
+    "risk_score": 1.6,
+    "ncd_years": 3,
+    "premium_status": "paid",
+    "preferred_language": "Hindi"
+  },
+  {
+    "customer_id": "CUST1003",
+    "name": "Sunita Young",
+    "email": "sunita.young@email.co.uk",
+    "phone": "07726474892",
+    "date_of_birth": "1994-03-07",
+    "address": {
+      "line1": "184 Church Lane",
+      "city": "Birmingham",
+      "postcode": "B15 8VF"
+    },
+    "occupation": "Architect",
+    "member_since": "2017-01-01",
+    "active_policies": [
+      "motor",
+      "home",
+      "health",
+      "travel"
+    ],
+    "risk_score": 2.3,
+    "ncd_years": 2,
+    "premium_status": "overdue",
+    "preferred_language": "Punjabi"
+  },
+  {
+    "customer_id": "CUST1004",
+    "name": "Harry King",
+    "email": "harry.king@email.co.uk",
+    "phone": "07858747381",
+    "date_of_birth": "1974-01-13",
+    "address": {
+      "line1": "85 Church Lane",
+      "city": "Cardiff",
+      "postcode": "CF10 9NG"
+    },
+    "occupation": "HR Manager",
+    "member_since": "2015-11-01",
+    "active_policies": [
+      "home"
+    ],
+    "risk_score": 3.0,
+    "ncd_years": 4,
+    "premium_status": "overdue",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1005",
+    "name": "Meera King",
+    "email": "meera.king@email.co.uk",
+    "phone": "07909230408",
+    "date_of_birth": "1974-02-04",
+    "address": {
+      "line1": "37 Station Road",
+      "city": "London",
+      "postcode": "N1 3FP"
+    },
+    "occupation": "Nurse",
+    "member_since": "2018-09-01",
+    "active_policies": [
+      "health"
+    ],
+    "risk_score": 3.7,
+    "ncd_years": 7,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1006",
+    "name": "Anita Davies",
+    "email": "anita.davies@email.co.uk",
+    "phone": "07705714143",
+    "date_of_birth": "1983-01-11",
+    "address": {
+      "line1": "56 Mill Lane",
+      "city": "London",
+      "postcode": "W1A 7LN"
+    },
+    "occupation": "Doctor",
+    "member_since": "2021-06-01",
+    "active_policies": [
+      "health",
+      "travel"
+    ],
+    "risk_score": 5.2,
+    "ncd_years": 2,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1007",
+    "name": "Mohammed Lewis",
+    "email": "mohammed.lewis@email.co.uk",
+    "phone": "07815785101",
+    "date_of_birth": "1984-12-10",
+    "address": {
+      "line1": "28 Park Avenue",
+      "city": "Leicester",
+      "postcode": "LE1 4YX"
+    },
+    "occupation": "Chef",
+    "member_since": "2018-07-01",
+    "active_policies": [
+      "motor",
+      "home"
+    ],
+    "risk_score": 3.6,
+    "ncd_years": 1,
+    "premium_status": "overdue",
+    "preferred_language": "Urdu"
+  },
+  {
+    "customer_id": "CUST1008",
+    "name": "Freddie Williams",
+    "email": "freddie.williams@email.co.uk",
+    "phone": "07944659146",
+    "date_of_birth": "1985-03-09",
+    "address": {
+      "line1": "111 Station Road",
+      "city": "Newcastle",
+      "postcode": "NE1 7XV"
+    },
+    "occupation": "Nurse",
+    "member_since": "2019-07-01",
+    "active_policies": [
+      "motor",
+      "health"
+    ],
+    "risk_score": 6.2,
+    "ncd_years": 9,
+    "premium_status": "overdue",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1009",
+    "name": "Poppy Sharma",
+    "email": "poppy.sharma@email.co.uk",
+    "phone": "07798797315",
+    "date_of_birth": "1983-11-06",
+    "address": {
+      "line1": "164 Station Road",
+      "city": "London",
+      "postcode": "SE1 7ZY"
+    },
+    "occupation": "Accountant",
+    "member_since": "2021-06-01",
+    "active_policies": [
+      "home",
+      "health"
+    ],
+    "risk_score": 6.1,
+    "ncd_years": 0,
+    "premium_status": "paid",
+    "preferred_language": "Hindi"
+  },
+  {
+    "customer_id": "CUST1010",
+    "name": "James Kaur",
+    "email": "james.kaur@email.co.uk",
+    "phone": "07927315269",
+    "date_of_birth": "1997-05-24",
+    "address": {
+      "line1": "190 Mill Lane",
+      "city": "Glasgow",
+      "postcode": "G1 8TS"
+    },
+    "occupation": "Retail Manager",
+    "member_since": "2019-04-01",
+    "active_policies": [
+      "health"
+    ],
+    "risk_score": 6.7,
+    "ncd_years": 1,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1011",
+    "name": "Oliver Ali",
+    "email": "oliver.ali@email.co.uk",
+    "phone": "07994409510",
+    "date_of_birth": "2000-04-25",
+    "address": {
+      "line1": "26 Mill Lane",
+      "city": "Glasgow",
+      "postcode": "G1 7FJ"
+    },
+    "occupation": "Solicitor",
+    "member_since": "2020-03-01",
+    "active_policies": [
+      "home",
+      "health"
+    ],
+    "risk_score": 7.6,
+    "ncd_years": 7,
+    "premium_status": "overdue",
+    "preferred_language": "Urdu"
+  },
+  {
+    "customer_id": "CUST1012",
+    "name": "Charlie Sharma",
+    "email": "charlie.sharma@email.co.uk",
+    "phone": "07937700481",
+    "date_of_birth": "1982-12-13",
+    "address": {
+      "line1": "48 Green Street",
+      "city": "Edinburgh",
+      "postcode": "EH1 8XF"
+    },
+    "occupation": "Teacher",
+    "member_since": "2023-04-01",
+    "active_policies": [
+      "motor",
+      "home"
+    ],
+    "risk_score": 8.5,
+    "ncd_years": 8,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1013",
+    "name": "Meera Williams",
+    "email": "meera.williams@email.co.uk",
+    "phone": "07840764280",
+    "date_of_birth": "1999-01-19",
+    "address": {
+      "line1": "82 Mill Lane",
+      "city": "Bristol",
+      "postcode": "BS1 5FE"
+    },
+    "occupation": "Civil Servant",
+    "member_since": "2015-07-01",
+    "active_policies": [
+      "motor"
+    ],
+    "risk_score": 1.8,
+    "ncd_years": 5,
+    "premium_status": "paid",
+    "preferred_language": "Hindi"
+  },
+  {
+    "customer_id": "CUST1014",
+    "name": "Charlie Walker",
+    "email": "charlie.walker@email.co.uk",
+    "phone": "07817944475",
+    "date_of_birth": "1991-04-04",
+    "address": {
+      "line1": "125 Church Lane",
+      "city": "Leicester",
+      "postcode": "LE1 5JX"
+    },
+    "occupation": "Sales Manager",
+    "member_since": "2016-09-01",
+    "active_policies": [
+      "motor"
+    ],
+    "risk_score": 7.9,
+    "ncd_years": 8,
+    "premium_status": "paid",
+    "preferred_language": "Punjabi"
+  },
+  {
+    "customer_id": "CUST1015",
+    "name": "Kavitha Williams",
+    "email": "kavitha.williams@email.co.uk",
+    "phone": "07776671812",
+    "date_of_birth": "1973-02-02",
+    "address": {
+      "line1": "195 Mill Lane",
+      "city": "Manchester",
+      "postcode": "M1 3MY"
+    },
+    "occupation": "Accountant",
+    "member_since": "2017-06-01",
+    "active_policies": [
+      "health"
+    ],
+    "risk_score": 6.9,
+    "ncd_years": 5,
+    "premium_status": "overdue",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1016",
+    "name": "Isla Brown",
+    "email": "isla.brown@email.co.uk",
+    "phone": "07818495142",
+    "date_of_birth": "1965-11-26",
+    "address": {
+      "line1": "25 Victoria Road",
+      "city": "Nottingham",
+      "postcode": "NG1 8ZV"
+    },
+    "occupation": "Financial Analyst",
+    "member_since": "2016-03-01",
+    "active_policies": [
+      "health",
+      "travel"
+    ],
+    "risk_score": 7.6,
+    "ncd_years": 2,
+    "premium_status": "overdue",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1017",
+    "name": "Sara Jones",
+    "email": "sara.jones@email.co.uk",
+    "phone": "07853266543",
+    "date_of_birth": "1966-03-01",
+    "address": {
+      "line1": "74 Station Road",
+      "city": "Oxford",
+      "postcode": "OX1 5DR"
+    },
+    "occupation": "Doctor",
+    "member_since": "2016-01-01",
+    "active_policies": [
+      "motor",
+      "home",
+      "health"
+    ],
+    "risk_score": 4.0,
+    "ncd_years": 9,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1018",
+    "name": "Oliver Khan",
+    "email": "oliver.khan@email.co.uk",
+    "phone": "07980258069",
+    "date_of_birth": "1979-12-22",
+    "address": {
+      "line1": "5 Station Road",
+      "city": "Edinburgh",
+      "postcode": "EH1 7PS"
+    },
+    "occupation": "Chef",
+    "member_since": "2018-03-01",
+    "active_policies": [
+      "motor",
+      "home",
+      "health",
+      "travel"
+    ],
+    "risk_score": 5.2,
+    "ncd_years": 0,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1019",
+    "name": "Charlie Walker",
+    "email": "charlie.walker@email.co.uk",
+    "phone": "07702693034",
+    "date_of_birth": "1992-01-27",
+    "address": {
+      "line1": "52 Church Lane",
+      "city": "Oxford",
+      "postcode": "OX1 3WK"
+    },
+    "occupation": "Software Engineer",
+    "member_since": "2019-03-01",
+    "active_policies": [
+      "home"
+    ],
+    "risk_score": 5.6,
+    "ncd_years": 6,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1020",
+    "name": "Oliver Kaur",
+    "email": "oliver.kaur@email.co.uk",
+    "phone": "07784716801",
+    "date_of_birth": "1969-04-11",
+    "address": {
+      "line1": "112 Church Lane",
+      "city": "Sheffield",
+      "postcode": "S1 8VC"
+    },
+    "occupation": "Sales Manager",
+    "member_since": "2023-03-01",
+    "active_policies": [
+      "motor",
+      "travel"
+    ],
+    "risk_score": 3.1,
+    "ncd_years": 9,
+    "premium_status": "overdue",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1021",
+    "name": "George Ali",
+    "email": "george.ali@email.co.uk",
+    "phone": "07768598511",
+    "date_of_birth": "1976-12-08",
+    "address": {
+      "line1": "45 Station Road",
+      "city": "Cambridge",
+      "postcode": "CB1 3WS"
+    },
+    "occupation": "Retail Manager",
+    "member_since": "2023-09-01",
+    "active_policies": [
+      "motor",
+      "home"
+    ],
+    "risk_score": 2.0,
+    "ncd_years": 3,
+    "premium_status": "paid",
+    "preferred_language": "Punjabi"
+  },
+  {
+    "customer_id": "CUST1022",
+    "name": "Mohammed Kaur",
+    "email": "mohammed.kaur@email.co.uk",
+    "phone": "07828439776",
+    "date_of_birth": "1980-10-11",
+    "address": {
+      "line1": "127 Victoria Road",
+      "city": "Southampton",
+      "postcode": "SO14 2WA"
+    },
+    "occupation": "Software Engineer",
+    "member_since": "2021-01-01",
+    "active_policies": [
+      "home"
+    ],
+    "risk_score": 3.7,
+    "ncd_years": 0,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1023",
+    "name": "Charlotte Smith",
+    "email": "charlotte.smith@email.co.uk",
+    "phone": "07800860942",
+    "date_of_birth": "1983-06-04",
+    "address": {
+      "line1": "41 Park Avenue",
+      "city": "Oxford",
+      "postcode": "OX1 7EY"
+    },
+    "occupation": "Project Manager",
+    "member_since": "2023-05-01",
+    "active_policies": [
+      "health",
+      "travel"
+    ],
+    "risk_score": 2.9,
+    "ncd_years": 0,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1024",
+    "name": "Yasmin Williams",
+    "email": "yasmin.williams@email.co.uk",
+    "phone": "07862493495",
+    "date_of_birth": "1987-04-18",
+    "address": {
+      "line1": "40 Oak Road",
+      "city": "Sheffield",
+      "postcode": "S1 1AF"
+    },
+    "occupation": "Accountant",
+    "member_since": "2018-06-01",
+    "active_policies": [
+      "motor"
+    ],
+    "risk_score": 5.8,
+    "ncd_years": 1,
+    "premium_status": "paid",
+    "preferred_language": "Urdu"
+  },
+  {
+    "customer_id": "CUST1025",
+    "name": "Aisha Williams",
+    "email": "aisha.williams@email.co.uk",
+    "phone": "07985494103",
+    "date_of_birth": "1992-09-21",
+    "address": {
+      "line1": "68 Park Avenue",
+      "city": "Liverpool",
+      "postcode": "L1 6DJ"
+    },
+    "occupation": "Architect",
+    "member_since": "2018-02-01",
+    "active_policies": [
+      "motor",
+      "travel"
+    ],
+    "risk_score": 8.0,
+    "ncd_years": 3,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1026",
+    "name": "Freddie Young",
+    "email": "freddie.young@email.co.uk",
+    "phone": "07808563748",
+    "date_of_birth": "1980-11-15",
+    "address": {
+      "line1": "134 High Street",
+      "city": "Glasgow",
+      "postcode": "G1 5CN"
+    },
+    "occupation": "Teacher",
+    "member_since": "2015-05-01",
+    "active_policies": [
+      "motor",
+      "home",
+      "health",
+      "travel"
+    ],
+    "risk_score": 5.0,
+    "ncd_years": 7,
+    "premium_status": "overdue",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1027",
+    "name": "Alfie Malik",
+    "email": "alfie.malik@email.co.uk",
+    "phone": "07903912796",
+    "date_of_birth": "1983-04-03",
+    "address": {
+      "line1": "152 Station Road",
+      "city": "Southampton",
+      "postcode": "SO14 8ZR"
+    },
+    "occupation": "Sales Manager",
+    "member_since": "2016-12-01",
+    "active_policies": [
+      "home"
+    ],
+    "risk_score": 1.6,
+    "ncd_years": 9,
+    "premium_status": "paid",
+    "preferred_language": "Punjabi"
+  },
+  {
+    "customer_id": "CUST1028",
+    "name": "Aisha Evans",
+    "email": "aisha.evans@email.co.uk",
+    "phone": "07710227258",
+    "date_of_birth": "1966-06-07",
+    "address": {
+      "line1": "53 Oak Road",
+      "city": "Cardiff",
+      "postcode": "CF10 1PK"
+    },
+    "occupation": "Nurse",
+    "member_since": "2017-12-01",
+    "active_policies": [
+      "motor",
+      "home",
+      "health",
+      "travel"
+    ],
+    "risk_score": 3.5,
+    "ncd_years": 2,
+    "premium_status": "overdue",
+    "preferred_language": "English"
+  },
+  {
+    "customer_id": "CUST1029",
+    "name": "Grace Lewis",
+    "email": "grace.lewis@email.co.uk",
+    "phone": "07739382045",
+    "date_of_birth": "1971-09-10",
+    "address": {
+      "line1": "65 Church Lane",
+      "city": "Cardiff",
+      "postcode": "CF10 5ZD"
+    },
+    "occupation": "Software Engineer",
+    "member_since": "2016-05-01",
+    "active_policies": [
+      "motor",
+      "home",
+      "health"
+    ],
+    "risk_score": 4.8,
+    "ncd_years": 2,
+    "premium_status": "paid",
+    "preferred_language": "Hindi"
+  },
+  {
+    "customer_id": "CUST1030",
+    "name": "Deepak Roberts",
+    "email": "deepak.roberts@email.co.uk",
+    "phone": "07829765340",
+    "date_of_birth": "1997-03-15",
+    "address": {
+      "line1": "73 Church Lane",
+      "city": "Leicester",
+      "postcode": "LE1 4LS"
+    },
+    "occupation": "Nurse",
+    "member_since": "2023-04-01",
+    "active_policies": [
+      "motor",
+      "health"
+    ],
+    "risk_score": 5.8,
+    "ncd_years": 9,
+    "premium_status": "paid",
+    "preferred_language": "English"
+  }
+]

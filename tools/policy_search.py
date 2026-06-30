@@ -1,4 +1,5 @@
 import os
+import re
 from typing import Any, Dict, List, Optional
 
 from dotenv import load_dotenv
@@ -98,6 +99,130 @@ def search_policy_clauses(
         try:
             collection = client[DB_NAME][COLLECTION_NAME]
             docs = list(collection.aggregate(pipeline))
+            if not docs and coverage_type and coverage_type.strip():
+                # Fallback: if strict coverage filter finds nothing, retry unfiltered.
+                fallback_stage: Dict[str, Any] = {
+                    "$vectorSearch": {
+                        "index": VECTOR_INDEX_NAME,
+                        "path": VECTOR_PATH,
+                        "queryVector": query_vector,
+                        "numCandidates": 100,
+                        "limit": TOP_K,
+                    }
+                }
+                fallback_pipeline = [
+                    fallback_stage,
+                    {
+                        "$project": {
+                            "_id": 0,
+                            "doc_id": 1,
+                            "title": 1,
+                            "section": 1,
+                            "coverage_type": 1,
+                            "text": 1,
+                            "score": {"$meta": "vectorSearchScore"},
+                        }
+                    },
+                ]
+                docs = list(collection.aggregate(fallback_pipeline))
+
+            if not docs:
+                # Final fallback: lexical search on title/text to avoid empty UX when vector retrieval yields none.
+                raw_tokens = re.findall(r"[a-zA-Z]{4,}", incident_description.lower())
+                stop_words = {
+                    "with", "from", "that", "this", "have", "were", "been", "their", "there",
+                    "would", "could", "should", "about", "after", "before", "under", "over", "between",
+                    "claim", "claims", "incident", "customer", "coverage", "amount", "police", "report",
+                }
+                keywords = [t for t in raw_tokens if t not in stop_words][:6]
+
+                lexical_filter: Dict[str, Any] = {}
+                if keywords:
+                    lexical_filter = {
+                        "$or": [
+                            {"title": {"$regex": "|".join(keywords), "$options": "i"}},
+                            {"text": {"$regex": "|".join(keywords), "$options": "i"}},
+                        ]
+                    }
+
+                if coverage_type and coverage_type.strip():
+                    lexical_filter = {
+                        "$and": [
+                            lexical_filter if lexical_filter else {},
+                            {"coverage_type": coverage_type.strip()},
+                        ]
+                    }
+
+                if lexical_filter:
+                    lexical_docs = list(
+                        collection.find(
+                            lexical_filter,
+                            {
+                                "_id": 0,
+                                "doc_id": 1,
+                                "title": 1,
+                                "section": 1,
+                                "coverage_type": 1,
+                                "text": 1,
+                            },
+                        ).limit(TOP_K)
+                    )
+                else:
+                    lexical_docs = list(
+                        collection.find(
+                            {},
+                            {
+                                "_id": 0,
+                                "doc_id": 1,
+                                "title": 1,
+                                "section": 1,
+                                "coverage_type": 1,
+                                "text": 1,
+                            },
+                        ).limit(TOP_K)
+                    )
+
+                if not lexical_docs and coverage_type and coverage_type.strip():
+                    # Final retry without coverage restriction to surface nearest policy guidance.
+                    if keywords:
+                        broad_filter = {
+                            "$or": [
+                                {"title": {"$regex": "|".join(keywords), "$options": "i"}},
+                                {"text": {"$regex": "|".join(keywords), "$options": "i"}},
+                            ]
+                        }
+                        lexical_docs = list(
+                            collection.find(
+                                broad_filter,
+                                {
+                                    "_id": 0,
+                                    "doc_id": 1,
+                                    "title": 1,
+                                    "section": 1,
+                                    "coverage_type": 1,
+                                    "text": 1,
+                                },
+                            ).limit(TOP_K)
+                        )
+
+                if not lexical_docs:
+                    lexical_docs = list(
+                        collection.find(
+                            {},
+                            {
+                                "_id": 0,
+                                "doc_id": 1,
+                                "title": 1,
+                                "section": 1,
+                                "coverage_type": 1,
+                                "text": 1,
+                            },
+                        ).limit(TOP_K)
+                    )
+
+                for d in lexical_docs:
+                    d["score"] = 0.0
+                docs = lexical_docs
         finally:
             client.close()
 

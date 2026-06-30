@@ -31,6 +31,9 @@ def assessment_agent(state: ClaimState) -> ClaimState:
     customer_id = state.get("customer_id", "")
     coverage_type = state.get("coverage_type", "")
     incident_description = state.get("incident_description", "") or state.get("user_query", "")
+    claimed_amount = state.get("estimated_amount_gbp", 0.0) or _extract_amount_gbp(incident_description)
+    if not claimed_amount:
+        claimed_amount = _extract_amount_gbp(state.get("user_query", ""))
 
     policy_result = search_policy_clauses.invoke(
         {
@@ -44,7 +47,7 @@ def assessment_agent(state: ClaimState) -> ClaimState:
     fraud_result_raw = assess_fraud_risk.invoke(
         {
             "customer_id": customer_id,
-            "claimed_amount_gbp": 0.0,
+            "claimed_amount_gbp": float(claimed_amount or 0.0),
         }
     )
 
@@ -94,26 +97,61 @@ def assessment_agent(state: ClaimState) -> ClaimState:
         "response": assessment_summary,
         "assessment_complete": True,
         "fraud_risk_level": fraud_risk_level,
+        "estimated_amount_gbp": float(claimed_amount or 0.0),
     }
 
 
 def _extract_amount_gbp(text: str) -> float:
-    match = re.search(r"(?:£|gbp\s*)?([0-9][0-9,]*(?:\.[0-9]{1,2})?)", text.lower())
-    if not match:
+    if not text:
         return 0.0
-    try:
-        return float(match.group(1).replace(",", ""))
-    except ValueError:
-        return 0.0
+
+    lowered = text.lower()
+    contextual_matches = re.finditer(
+        r"(?:estimated\s+amount|claimed\s+amount|amount|gbp|£)\s*[:=]?\s*([0-9][0-9,]*(?:\.[0-9]{1,2})?)",
+        lowered,
+    )
+
+    contextual_amounts = []
+    for match in contextual_matches:
+        try:
+            contextual_amounts.append(float(match.group(1).replace(",", "")))
+        except ValueError:
+            continue
+
+    if contextual_amounts:
+        return contextual_amounts[-1]
+
+    numeric_matches = re.finditer(r"\b([0-9][0-9,]*(?:\.[0-9]{1,2})?)\b", lowered)
+    candidates = []
+    for match in numeric_matches:
+        token = match.group(1)
+        start = match.start()
+        prefix = lowered[max(0, start - 6):start]
+        if "cust" in prefix:
+            continue
+        try:
+            value = float(token.replace(",", ""))
+        except ValueError:
+            continue
+        if value >= 100:
+            candidates.append(value)
+
+    return max(candidates) if candidates else 0.0
 
 
 def _is_submission_confirmation(text: str) -> bool:
     lowered = text.lower()
-    keywords = ["confirm", "submit", "proceed", "go ahead", "yes"]
-    return any(k in lowered for k in keywords)
+    patterns = [
+        r"\bconfirm\b.*\bsubmit\b",
+        r"\bsubmit\b.*\bfnol\b",
+        r"\bgo\s+ahead\b",
+        r"\bproceed\b",
+    ]
+    return any(re.search(pattern, lowered) for pattern in patterns)
 
 
 def resolution_agent(state: ClaimState) -> ClaimState:
+    prior_assessment = state.get("response", "")
     incident_summary = state.get("incident_summary", state.get("incident_description", ""))
     coverage_type = state.get("coverage_type", "unknown")
     customer_id = state.get("customer_id", "")
@@ -122,7 +160,11 @@ def resolution_agent(state: ClaimState) -> ClaimState:
     if not amount:
         amount = _extract_amount_gbp(state.get("user_query", ""))
 
-    if _is_submission_confirmation(state.get("user_query", "")):
+    should_submit_fnol = bool(state.get("intake_complete", False)) or _is_submission_confirmation(
+        state.get("user_query", "")
+    )
+
+    if should_submit_fnol:
         fnol_response = submit_fnol.invoke(
             {
                 "customer_id": customer_id,
@@ -132,9 +174,13 @@ def resolution_agent(state: ClaimState) -> ClaimState:
                 "fraud_risk_level": fraud_risk_level,
             }
         )
+        if prior_assessment:
+            final_response = f"{prior_assessment}\n\n{fnol_response}"
+        else:
+            final_response = fnol_response
         return {
             **state,
-            "response": fnol_response,
+            "response": final_response,
             "fnol_submitted": True,
             "estimated_amount_gbp": amount,
         }
@@ -177,6 +223,7 @@ def intake_agent(state: ClaimState) -> ClaimState:
         "coverage_type": updated.get("coverage_type", ""),
         "incident_description": updated.get("incident_description", ""),
         "incident_summary": updated.get("incident_summary", ""),
+        "estimated_amount_gbp": _extract_amount_gbp(state.get("user_query", "")),
         "intake_complete": updated.get("intake_complete", False),
         "route": next_route,
     }

@@ -3,6 +3,7 @@ from fastapi import HTTPException
 from dotenv import load_dotenv
 from pydantic import BaseModel
 from pymongo import MongoClient
+import asyncio
 import os
 
 from agents.claim_graph import build_claim_graph
@@ -32,7 +33,7 @@ def health() -> dict:
 
 
 @app.post("/chat", response_model=ChatResponse)
-def chat(payload: ChatRequest) -> ChatResponse:
+async def chat(payload: ChatRequest) -> ChatResponse:
     session_id = payload.session_id or payload.claim_id or "default"
     previous = SESSION_STATES.get(session_id, {})
     next_state = {
@@ -40,7 +41,9 @@ def chat(payload: ChatRequest) -> ChatResponse:
         "user_query": payload.message,
         "claim_id": session_id,
     }
-    result = graph.invoke(next_state)
+    # Run graph.invoke in a thread pool to avoid blocking
+    loop = asyncio.get_event_loop()
+    result = await loop.run_in_executor(None, graph.invoke, next_state)
     SESSION_STATES[session_id] = result
     text = result.get("response", "No response generated.")
     return ChatResponse(reply=text, response=text, route=result.get("route"))

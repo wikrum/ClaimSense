@@ -1,6 +1,7 @@
 import json
 import re
 from typing import TypedDict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from langgraph.graph import END, START, StateGraph
 
@@ -35,21 +36,31 @@ def assessment_agent(state: ClaimState) -> ClaimState:
     if not claimed_amount:
         claimed_amount = _extract_amount_gbp(state.get("user_query", ""))
 
-    policy_result = search_policy_clauses.invoke(
-        {
-            "incident_description": incident_description,
-            "coverage_type": coverage_type,
-        }
-    )
-    claims_history = lookup_customer_claims_history.invoke(
-        {"customer_id": customer_id}
-    )
-    fraud_result_raw = assess_fraud_risk.invoke(
-        {
-            "customer_id": customer_id,
-            "claimed_amount_gbp": float(claimed_amount or 0.0),
-        }
-    )
+    # Parallelize tool calls using ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        policy_future = executor.submit(
+            search_policy_clauses.invoke,
+            {
+                "incident_description": incident_description,
+                "coverage_type": coverage_type,
+            },
+        )
+        claims_future = executor.submit(
+            lookup_customer_claims_history.invoke,
+            {"customer_id": customer_id},
+        )
+        fraud_future = executor.submit(
+            assess_fraud_risk.invoke,
+            {
+                "customer_id": customer_id,
+                "claimed_amount_gbp": float(claimed_amount or 0.0),
+            },
+        )
+
+        # Wait for all futures to complete
+        policy_result = policy_future.result()
+        claims_history = claims_future.result()
+        fraud_result_raw = fraud_future.result()
 
     policy_lines = []
     if isinstance(policy_result, list) and policy_result:

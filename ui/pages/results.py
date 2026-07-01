@@ -5,7 +5,7 @@ from typing import Any, Dict
 from requests import RequestException
 import streamlit as st
 
-from ui.fnol_pdf import generate_fnol_pdf
+from fnol_pdf import generate_fnol_pdf
 from services.api import get_customer_claims, get_fnol
 
 

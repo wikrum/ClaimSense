@@ -12,25 +12,33 @@ def invoke_claude_sonnet(prompt: str) -> Dict[str, Any]:
     region = os.getenv("AWS_REGION", "us-east-1")
     model_id = os.getenv("BEDROCK_MODEL_ID", "anthropic.claude-3-5-sonnet-20240620-v1:0")
 
-    client = boto3.client("bedrock-runtime", region_name=region)
+    try:
+        client = boto3.client("bedrock-runtime", region_name=region)
 
-    payload = {
-        "anthropic_version": "bedrock-2023-05-31",
-        "max_tokens": 600,
-        "messages": [{"role": "user", "content": [{"type": "text", "text": prompt}]}],
-    }
+        payload = {
+            "anthropic_version": "bedrock-2023-05-31",
+            "max_tokens": 600,
+            "messages": [{"role": "user", "content": [{"type": "text", "text": prompt}]}],
+        }
 
-    response = client.invoke_model(
-        modelId=model_id,
-        body=json.dumps(payload),
-        contentType="application/json",
-        accept="application/json",
-    )
-    body = json.loads(response["body"].read())
+        response = client.invoke_model(
+            modelId=model_id,
+            body=json.dumps(payload),
+            contentType="application/json",
+            accept="application/json",
+        )
+        body = json.loads(response["body"].read())
 
-    text_parts = []
-    for item in body.get("content", []):
-        if item.get("type") == "text":
-            text_parts.append(item.get("text", ""))
+        text_parts = []
+        for item in body.get("content", []):
+            if item.get("type") == "text":
+                text_parts.append(item.get("text", ""))
 
-    return {"model_id": model_id, "text": "\n".join(text_parts).strip(), "raw": body}
+        return {"model_id": model_id, "text": "\n".join(text_parts).strip(), "raw": body}
+    except Exception as exc:
+        return {
+            "model_id": model_id,
+            "text": "",
+            "error": str(exc),
+            "raw": {"error_type": type(exc).__name__},
+        }

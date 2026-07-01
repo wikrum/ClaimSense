@@ -54,9 +54,11 @@ def assess_fraud_risk(customer_id: str, claimed_amount_gbp: float = 0.0) -> str:
         },
     ]
 
+    db_name = os.getenv("MONGODB_DB", "claimsense_db")
+
     client = MongoClient(mongo_uri)
     try:
-        collection = client["claimsense_db"]["claims_history"]
+        collection = client[db_name]["claims_history"]
         rows = list(collection.aggregate(pipeline))
     except Exception as exc:
         return json.dumps({"error": f"failed to assess fraud risk: {exc}"})

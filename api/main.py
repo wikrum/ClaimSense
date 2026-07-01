@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from pymongo import MongoClient
 import asyncio
 import os
+from datetime import datetime
 
 from agents.claim_graph import build_claim_graph
 
@@ -25,6 +26,7 @@ class ChatResponse(BaseModel):
     reply: str
     response: str
     route: str | None = None
+    trace: list[dict] | None = None
 
 
 @app.get("/health")
@@ -41,21 +43,49 @@ async def chat(payload: ChatRequest) -> ChatResponse:
         "user_query": payload.message,
         "claim_id": session_id,
     }
+    trace_events = [
+        {
+            "tag": "sys",
+            "text": f"Starting claim workflow for session {session_id}",
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S"),
+        }
+    ]
+
     # Run graph.invoke in a thread pool to avoid blocking
     loop = asyncio.get_event_loop()
     result = await loop.run_in_executor(None, graph.invoke, next_state)
     SESSION_STATES[session_id] = result
     text = result.get("response", "No response generated.")
-    return ChatResponse(reply=text, response=text, route=result.get("route"))
+
+    route = result.get("route")
+    trace_events.extend(result.get("trace_events", []))
+    trace_events.append(
+        {
+            "tag": "agent",
+            "text": f"Completed route: {route or 'unknown'}",
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S"),
+        }
+    )
+    if isinstance(result.get("response"), str):
+        trace_events.append(
+            {
+                "tag": "llm",
+                "text": "Generated response summary",
+                "timestamp": datetime.utcnow().strftime("%H:%M:%S"),
+            }
+        )
+
+    return ChatResponse(reply=text, response=text, route=route, trace=trace_events)
 
 
 def _get_mongo_collection(collection_name: str):
     mongo_uri = os.getenv("MONGODB_URI")
+    db_name = os.getenv("MONGODB_DB", "claimsense_db")
     if not mongo_uri:
         raise HTTPException(status_code=500, detail="MONGODB_URI is not configured.")
 
     client = MongoClient(mongo_uri)
-    return client, client["claimsense_db"][collection_name]
+    return client, client[db_name][collection_name]
 
 
 def _serialize_mongo_doc(doc: dict) -> dict:

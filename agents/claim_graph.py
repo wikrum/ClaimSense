@@ -1,5 +1,6 @@
 import json
 import re
+from datetime import datetime
 from typing import TypedDict
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -26,9 +27,24 @@ class ClaimState(TypedDict, total=False):
     fnol_submitted: bool
     fraud_risk_level: str
     estimated_amount_gbp: float
+    trace_events: list[dict]
+
+
+def _append_trace(state: ClaimState, tag: str, text: str) -> ClaimState:
+    trace_events = list(state.get("trace_events", []))
+    trace_events.append(
+        {
+            "tag": tag,
+            "text": text,
+            "timestamp": datetime.utcnow().strftime("%H:%M:%S"),
+        }
+    )
+    state["trace_events"] = trace_events
+    return state
 
 
 def assessment_agent(state: ClaimState) -> ClaimState:
+    _append_trace(state, "agent", "Starting assessment stage")
     customer_id = state.get("customer_id", "")
     coverage_type = state.get("coverage_type", "")
     incident_description = state.get("incident_description", "") or state.get("user_query", "")
@@ -61,6 +77,10 @@ def assessment_agent(state: ClaimState) -> ClaimState:
         policy_result = policy_future.result()
         claims_history = claims_future.result()
         fraud_result_raw = fraud_future.result()
+
+    _append_trace(state, "tool", f"Policy search completed for coverage {coverage_type or 'unknown'}")
+    _append_trace(state, "tool", "Claims history lookup completed")
+    _append_trace(state, "tool", "Fraud assessment completed")
 
     policy_lines = []
     if isinstance(policy_result, list) and policy_result:
@@ -162,6 +182,7 @@ def _is_submission_confirmation(text: str) -> bool:
 
 
 def resolution_agent(state: ClaimState) -> ClaimState:
+    _append_trace(state, "agent", "Preparing resolution and FNOL decision")
     prior_assessment = state.get("response", "")
     incident_summary = state.get("incident_summary", state.get("incident_description", ""))
     coverage_type = state.get("coverage_type", "unknown")
@@ -176,6 +197,7 @@ def resolution_agent(state: ClaimState) -> ClaimState:
     )
 
     if should_submit_fnol:
+        _append_trace(state, "tool", "Submitting FNOL to MongoDB")
         fnol_response = submit_fnol.invoke(
             {
                 "customer_id": customer_id,
@@ -214,6 +236,7 @@ def resolution_agent(state: ClaimState) -> ClaimState:
 
 
 def intake_agent(state: ClaimState) -> ClaimState:
+    _append_trace(state, "agent", "Running intake agent")
     intake_state: IntakeState = {
         "customer_id": state.get("customer_id", ""),
         "coverage_type": state.get("coverage_type", ""),
@@ -226,6 +249,12 @@ def intake_agent(state: ClaimState) -> ClaimState:
     updated = result["state"]
 
     next_route = "policy" if updated.get("coverage_type") in {"motor", "home", "health", "travel"} else "policy"
+
+    _append_trace(
+        state,
+        "tool",
+        f"Intake completed with customer {updated.get('customer_id', 'unknown')} and coverage {updated.get('coverage_type', 'unknown')}",
+    )
 
     return {
         **state,

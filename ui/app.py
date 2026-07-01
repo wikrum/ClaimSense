@@ -52,6 +52,10 @@ def _get_system_health() -> dict:
         return {"ok": False, "error": str(exc)}
 
 
+def _new_session_id() -> None:
+    st.session_state["session_id"] = str(uuid.uuid4())
+
+
 def _set_demo_scenario(
     customer_id: str,
     coverage_type: str,
@@ -59,6 +63,7 @@ def _set_demo_scenario(
     estimated_amount: float,
     claimant_name: str = "Demo Claimant",
 ) -> None:
+    _new_session_id()
     st.session_state["customer_id_input"] = customer_id
     st.session_state["claimant_name_input"] = claimant_name
     st.session_state["incident_date_input"] = date.today()
@@ -67,6 +72,9 @@ def _set_demo_scenario(
     st.session_state["estimated_amount_input"] = float(estimated_amount)
     st.session_state["police_report_input"] = True
     st.session_state["documents_ready_input"] = True
+    st.session_state["results"] = {}
+    st.session_state["trace_events"] = []
+    st.session_state["demo_submission_pending"] = True
     st.session_state["page"] = "intake"
     st.rerun()
 
@@ -98,7 +106,7 @@ with st.sidebar:
 
     st.markdown("### Quick demo scenarios")
 
-    if st.button("🚗 Motor collision", use_container_width=True):
+    if st.button("🚗 Motor collision", width="stretch"):
         _set_demo_scenario(
             "CUST1005",
             "motor",
@@ -106,7 +114,7 @@ with st.sidebar:
             8500,
         )
 
-    if st.button("🏠 Home burglary", use_container_width=True):
+    if st.button("🏠 Home burglary", width="stretch"):
         _set_demo_scenario(
             "CUST1012",
             "home",
@@ -114,7 +122,7 @@ with st.sidebar:
             9800,
         )
 
-    if st.button("🏥 Health claim", use_container_width=True):
+    if st.button("🏥 Health claim", width="stretch"):
         _set_demo_scenario(
             "CUST1021",
             "health",
@@ -150,7 +158,7 @@ with st.sidebar:
                     unsafe_allow_html=True,
                 )
 
-        if st.button("Clear trace", use_container_width=True):
+        if st.button("Clear trace", width="stretch"):
             st.session_state["trace_events"] = []
             st.rerun()
 

@@ -110,9 +110,11 @@ def render_results_page(results: Dict[str, Any]) -> None:
 
     b1, b2 = st.columns(2)
     with b1:
-        if st.button("Submit another claim", use_container_width=True):
+        if st.button("Submit another claim", width="stretch"):
             st.session_state["page"] = "intake"
             st.session_state["results"] = {}
+            st.session_state["session_id"] = str(uuid.uuid4())
+            st.session_state["trace_events"] = []
             st.rerun()
     with b2:
         if fnol_id and (not fnol_doc or fnol_doc.get("error")):
@@ -138,5 +140,5 @@ def render_results_page(results: Dict[str, Any]) -> None:
             data=generate_fnol_pdf(fnol_data),
             file_name=f"FNOL_{fnol_id or 'summary'}.pdf",
             mime="application/pdf",
-            use_container_width=True,
+            use_container_width=False,
         )

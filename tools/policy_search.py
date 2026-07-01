@@ -11,7 +11,7 @@ import voyageai
 load_dotenv()
 
 
-DB_NAME = "claimsense_db"
+DB_NAME = os.getenv("MONGODB_DB", "claimsense_db")
 COLLECTION_NAME = "policy_docs"
 VECTOR_INDEX_NAME = "vector_index"
 VECTOR_PATH = "embedding"
@@ -98,7 +98,35 @@ def search_policy_clauses(
         client = MongoClient(mongo_uri)
         try:
             collection = client[DB_NAME][COLLECTION_NAME]
-            docs = list(collection.aggregate(pipeline))
+            docs = []
+
+            # Prefer an exact coverage-type match first so the UI stays scenario-relevant.
+            if coverage_type and coverage_type.strip():
+                exact_filter = {"coverage_type": coverage_type.strip()}
+                exact_docs = list(
+                    collection.find(
+                        exact_filter,
+                        {
+                            "_id": 0,
+                            "doc_id": 1,
+                            "title": 1,
+                            "section": 1,
+                            "coverage_type": 1,
+                            "text": 1,
+                        },
+                    ).limit(TOP_K)
+                )
+                if exact_docs:
+                    docs = exact_docs
+                    for d in docs:
+                        d["score"] = 0.0
+
+            if not docs:
+                try:
+                    docs = list(collection.aggregate(pipeline))
+                except Exception:
+                    docs = []
+
             if not docs and coverage_type and coverage_type.strip():
                 # Fallback: if strict coverage filter finds nothing, retry unfiltered.
                 fallback_stage: Dict[str, Any] = {
@@ -124,7 +152,10 @@ def search_policy_clauses(
                         }
                     },
                 ]
-                docs = list(collection.aggregate(fallback_pipeline))
+                try:
+                    docs = list(collection.aggregate(fallback_pipeline))
+                except Exception:
+                    docs = []
 
             if not docs:
                 # Final fallback: lexical search on title/text to avoid empty UX when vector retrieval yields none.

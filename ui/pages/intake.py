@@ -1,3 +1,4 @@
+import uuid
 from datetime import date
 import re
 from typing import Any, Dict
@@ -31,6 +32,60 @@ def _navigate_to_results() -> None:
     st.session_state["page"] = "results"
 
 
+def _collect_form_data() -> Dict[str, Any]:
+    customer_id = st.session_state.get("customer_id_input", "").strip().upper()
+    claimant_name = st.session_state.get("claimant_name_input", "").strip()
+    incident_date = st.session_state.get("incident_date_input", date.today())
+    coverage_type = st.session_state.get("coverage_type_input", "motor")
+    incident_desc = st.session_state.get("incident_desc_input", "").strip()
+    estimated_amount = float(st.session_state.get("estimated_amount_input", 0.0) or 0.0)
+    police_report = bool(st.session_state.get("police_report_input", False))
+    documents_ready = bool(st.session_state.get("documents_ready_input", False))
+
+    return {
+        "customer_id": customer_id,
+        "claimant_name": claimant_name,
+        "incident_date": incident_date,
+        "coverage_type": coverage_type,
+        "incident_desc": incident_desc,
+        "estimated_amount": estimated_amount,
+        "police_report": police_report,
+        "documents_ready": documents_ready,
+    }
+
+
+def _submit_claim_form(form_data: Dict[str, Any]) -> None:
+    message = _build_natural_language_message(form_data)
+
+    try:
+        st.session_state["session_id"] = str(uuid.uuid4())
+        with st.spinner("ClaimSense agents are processing your claim..."):
+            chat_data = post_chat(st.session_state["session_id"], message)
+
+        response_text = chat_data.get("response", chat_data.get("reply", ""))
+        trace_events = chat_data.get("trace") or []
+        if trace_events:
+            st.session_state["trace_events"] = trace_events
+        fnol_match = re.search(r"FNOL-\d{8}-\d{6}", response_text)
+        fnol_id = fnol_match.group(0) if fnol_match else ""
+        st.session_state["results"] = {
+            "form_data": form_data,
+            "chat_response": response_text,
+            "customer_id": form_data["customer_id"],
+            "fnol_id": fnol_id,
+        }
+        st.session_state["demo_submission_pending"] = False
+        _navigate_to_results()
+        st.rerun()
+    except Timeout:
+        st.error(
+            "ClaimSense agents are taking longer than expected. "
+            "Please wait and try submitting again in a moment."
+        )
+    except RequestException as exc:
+        st.error(f"Backend request failed: {exc}")
+
+
 def render_intake_page() -> None:
     st.header("Claim Intake Form")
     st.caption("Step 1 of 2: Collect incident details")
@@ -50,7 +105,6 @@ def render_intake_page() -> None:
         )
         incident_date = st.date_input(
             "Incident Date",
-            value=date.today(),
             max_value=date.today(),
             key="incident_date_input",
         )
@@ -78,7 +132,7 @@ def render_intake_page() -> None:
             key="documents_ready_input",
         )
 
-        submitted = st.button("Submit Claim Intake", type="primary")
+        submitted = st.button("Submit Claim Intake", type="primary", width="stretch")
 
     with right_col:
         st.subheader("Helper Tips")
@@ -88,11 +142,32 @@ def render_intake_page() -> None:
             "\n\nAdd estimated amount and evidence readiness for faster FNOL processing."
         )
 
+    if st.session_state.get("demo_submission_pending"):
+        form_data = _collect_form_data()
+        customer_id_clean = form_data["customer_id"]
+        incident_desc_clean = form_data["incident_desc"]
+
+        if not customer_id_clean:
+            st.error("customer_id is required.")
+            return
+
+        if not _is_valid_customer_id(customer_id_clean):
+            st.error("customer_id must start with CUST.")
+            return
+
+        if len(incident_desc_clean) <= 20:
+            st.error("incident_desc must be longer than 20 characters.")
+            return
+
+        _submit_claim_form(form_data)
+        return
+
     if not submitted:
         return
 
-    customer_id_clean = customer_id.strip().upper()
-    incident_desc_clean = incident_desc.strip()
+    form_data = _collect_form_data()
+    customer_id_clean = form_data["customer_id"]
+    incident_desc_clean = form_data["incident_desc"]
 
     if not customer_id_clean:
         st.error("customer_id is required.")
@@ -106,38 +181,4 @@ def render_intake_page() -> None:
         st.error("incident_desc must be longer than 20 characters.")
         return
 
-    form_data = {
-        "customer_id": customer_id_clean,
-        "claimant_name": claimant_name.strip(),
-        "incident_date": incident_date,
-        "coverage_type": coverage_type,
-        "incident_desc": incident_desc_clean,
-        "estimated_amount": float(estimated_amount),
-        "police_report": bool(police_report),
-        "documents_ready": bool(documents_ready),
-    }
-
-    message = _build_natural_language_message(form_data)
-
-    try:
-        with st.spinner("ClaimSense agents are processing your claim..."):
-            chat_data = post_chat(st.session_state["session_id"], message)
-
-        response_text = chat_data.get("response", chat_data.get("reply", ""))
-        fnol_match = re.search(r"FNOL-\d{8}-\d{6}", response_text)
-        fnol_id = fnol_match.group(0) if fnol_match else ""
-        st.session_state["results"] = {
-            "form_data": form_data,
-            "chat_response": response_text,
-            "customer_id": form_data["customer_id"],
-            "fnol_id": fnol_id,
-        }
-        _navigate_to_results()
-        st.rerun()
-    except Timeout:
-        st.error(
-            "ClaimSense agents are taking longer than expected. "
-            "Please wait and try submitting again in a moment."
-        )
-    except RequestException as exc:
-        st.error(f"Backend request failed: {exc}")
+    _submit_claim_form(form_data)

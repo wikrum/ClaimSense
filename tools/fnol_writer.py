@@ -41,9 +41,11 @@ def submit_fnol(
         ),
     }
 
+    db_name = os.getenv("MONGODB_DB", "claimsense_db")
+
     client = MongoClient(mongo_uri)
     try:
-        collection = client["claimsense_db"]["fnol_submissions"]
+        collection = client[db_name]["fnol_submissions"]
         collection.create_index("fnol_id", unique=True)
         result = collection.insert_one(fnol_doc)
     except Exception as exc:

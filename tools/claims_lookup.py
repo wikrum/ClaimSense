@@ -89,9 +89,11 @@ def lookup_customer_claims_history(customer_id: str) -> str:
         },
     ]
 
+    db_name = os.getenv("MONGODB_DB", "claimsense_db")
+
     client = MongoClient(mongo_uri)
     try:
-        collection = client["claimsense_db"]["claims_history"]
+        collection = client[db_name]["claims_history"]
         result = list(collection.aggregate(pipeline))
     except Exception as exc:
         return f"Error: failed to query claims history. Details: {exc}"
